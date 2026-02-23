@@ -35,23 +35,26 @@ export function serveStatic(app: Express) {
     }
 
     if (!distPath) {
-        console.error("--- ERROR CRÍTICO: NO SE ENCONTRÓ EL FRONTEND ---");
+        console.error("--- ERROR CRÍTICO: FRONTEND NO ENCONTRADO ---");
         console.error("No se encontró el directorio de build (buscando index.html).");
         console.log("Rutas comprobadas:");
-        possiblePaths.forEach(p => console.log(` - ${p} -> ${fs.existsSync(p) ? 'Existe' : 'No existe'}`));
-
-        // Listar contenido de directorios clave para diagnóstico
+        possiblePaths.forEach(p => console.log(` - ${p} -> ${fs.existsSync(p) ? 'FALTA index.html' : 'NO EXISTE CARPETA'}`));
+        
+        // Diagnóstico profundo del disco
         try {
-            console.log("Contenido de /app/dist:");
-            if (fs.existsSync("/app/dist")) console.log(fs.readdirSync("/app/dist"));
-            else console.log("/app/dist no existe");
-
-            console.log("Contenido del directorio actual (cwd):", process.cwd());
-            console.log(fs.readdirSync(process.cwd()));
-        } catch (e) { }
+            console.log("Mapeo de directorios para depuración:");
+            const dirsToScan = ["/app", "/app/dist", "/app/client"];
+            dirsToScan.forEach(d => {
+                if (fs.existsSync(d)) {
+                    console.log(`Contenido de ${d}:`, fs.readdirSync(d));
+                } else {
+                    console.log(`${d} no existe.`);
+                }
+            });
+        } catch (e) { console.error("Error en diagnóstico:", e); }
 
         throw new Error(
-            `No se pudo encontrar el directorio de build del cliente. Por favor, verifica los logs de arriba para ver las rutas comprobadas.`
+            `Fallo al localizar el frontend. Revisa los logs de arriba para ver el mapeo de directorios.`
         );
     }
 
