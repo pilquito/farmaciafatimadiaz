@@ -12,12 +12,11 @@ RUN npm install
 # Copiar el resto del código
 COPY . .
 
-# Mostrar versiones para depuración
-RUN node -v && npm -v
+# Listar archivos para verificar que todo se copió bien
+RUN ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
 
-# Construir el frontend (Vite) y el backend (esbuild)
-# Usamos el script de build pero capturando la salida para depuración
-RUN npm run build || (npm run build 2>&1 | tee /tmp/build_error.log && exit 1)
+# Construir el frontend y backend con máxima verbosidad
+RUN npm run build --verbose
 
 # --- Etapa de ejecución ---
 FROM node:20-alpine
