@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+dist
+.env
+.replit
+replit.md
+migrations
+uploads/*
+!uploads/.gitkeep
+.git
+.gitignore
+*.md
