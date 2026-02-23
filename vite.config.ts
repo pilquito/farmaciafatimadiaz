@@ -1,16 +1,19 @@
 // Removed static import to avoid production runtime dependency
 // import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Lazy load plugins to avoid loading devDependencies in production
+async function getPlugins() {
+  const react = (await import("@vitejs/plugin-react")).default;
+  return [react()];
+}
+
 export default {
-  plugins: [
-    react(),
-  ],
+  plugins: await getPlugins(),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "client", "src"),
