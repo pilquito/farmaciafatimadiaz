@@ -8,12 +8,19 @@ const __dirname = path.dirname(__filename);
 
 // Usamos una función async para evitar que esbuild detecte la dependencia estática
 async function getPlugins() {
+  // Si estamos en ejecución (runtime) de producción, NO cargamos plugins de Vite
   if (process.env.NODE_ENV === "production" && !process.env.VITE_BUILD) {
     return [];
   }
-  const pluginName = "@vitejs" + "/plugin-react";
-  const react = (await import(pluginName)).default;
-  return [react()];
+  
+  try {
+    const pluginName = "@vitejs" + "/plugin-react";
+    const react = (await import(pluginName)).default;
+    return [react()];
+  } catch (e) {
+    console.warn("No se pudo cargar @vitejs/plugin-react, saltando...");
+    return [];
+  }
 }
 
 export default {

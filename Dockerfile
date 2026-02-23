@@ -6,54 +6,52 @@ WORKDIR /app
 # Copiar archivos de dependencias
 COPY package*.json ./
 
-# Instalar todas las dependencias (incluyendo dev)
+# Instalar TODAS las dependencias (incluyendo devDependencies para el build)
 RUN npm install
 
-# Copiar el resto del código
+# Copiar el resto del código fuente
 COPY . .
 
-# Variables de entorno para la construcción
-ENV CI=true
+# Variables de entorno para la fase de construcción
 ENV NODE_ENV=production
 ENV VITE_BUILD=true
+ENV CI=true
 
-# PASO 1: Frontend Build (Vite)
-# Usamos --config explícito y verificamos el directorio dist/public
-RUN npx vite build --root client --config vite.config.ts && \
-    if [ ! -d "dist/public" ]; then echo "ERROR: dist/public no se creó" && exit 1; fi && \
-    echo "Frontend build exitoso. Contenido de dist/public:" && \
-    ls -la dist/public
+# Ejecutar el build unificado definido en package.json
+# Esto corre: vite build && esbuild server/index.ts ...
+RUN npm run build
 
-# PASO 2: Backend Build (esbuild)
-# Bundleamos el servidor y verificamos dist/index.js
-RUN npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && \
-    if [ ! -f "dist/index.js" ]; then echo "ERROR: dist/index.js no se creó" && exit 1; fi && \
-    echo "Backend build exitoso."
+# VERIFICACIÓN CRÍTICA:
+# Listamos el contenido de dist para confirmar que el build generó lo esperado.
+# Si dist/public no existe, este paso fallará el build de Docker inmediatamente.
+RUN echo "Verificando estructura del directorio dist..." && \
+    ls -lR dist && \
+    if [ ! -d "dist/public" ]; then echo "ERROR: El directorio dist/public no existe tras el build." && exit 1; fi && \
+    if [ ! -f "dist/index.js" ]; then echo "ERROR: El archivo dist/index.js no existe tras el build." && exit 1; fi
 
-# --- Etapa de ejecución ---
+# --- Etapa de ejecución (Runtime) ---
 FROM node:20-slim
 
 WORKDIR /app
 
-# Copiar archivos de dependencias para runtime
+# Copiar archivos de dependencias para instalar el mínimo necesario
 COPY package*.json ./
 
-# Instalar solo dependencias de producción
+# Instalar solo dependencias de producción para mantener la imagen ligera
 RUN npm install --omit=dev
 
-# Copiar la aplicación compilada
-# IMPORTANTE: Copiamos todo el directorio dist
+# Copiar TODO el contenido de dist generado en la etapa anterior
 COPY --from=builder /app/dist ./dist
 
-# Crear carpetas necesarias
+# Crear carpetas necesarias para la aplicación
 RUN mkdir -p uploads storage
 
-# Variables de entorno runtime
+# Configuración de entorno para ejecución
 ENV NODE_ENV=production
 ENV PORT=5000
 
-# Exponer el puerto
+# Exponer el puerto de la aplicación
 EXPOSE 5000
 
-# Comando para arrancar la aplicación
+# Comando para iniciar la aplicación usando el bundle generado
 CMD ["npm", "start"]
