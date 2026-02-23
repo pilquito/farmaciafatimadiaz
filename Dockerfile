@@ -15,8 +15,11 @@ COPY . .
 # Mostrar versiones para depuración
 RUN node -v && npm -v
 
-# Construir el frontend (Vite) y el backend (esbuild)
-RUN npm run build || (echo "Error durante npm run build" && exit 1)
+# Construir el frontend (Vite)
+RUN npx vite build --root client --config vite.config.ts
+
+# Construir el backend (esbuild)
+RUN npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
 # --- Etapa de ejecución ---
 FROM node:20-alpine
