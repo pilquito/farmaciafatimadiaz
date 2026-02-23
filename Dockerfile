@@ -1,15 +1,12 @@
 # --- Etapa de construcción ---
-FROM node:20-slim AS builder
+FROM node:20 AS builder
 
 WORKDIR /app
-
-# Instalar dependencias necesarias para compilación si hicieran falta
-# RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 # Copiar archivos de dependencias
 COPY package*.json ./
 
-# Forzar limpieza y instalar (por si el lockfile tiene conflictos de plataforma)
+# Instalar dependencias
 RUN npm install
 
 # Copiar el resto del código
@@ -18,13 +15,18 @@ COPY . .
 # Variables de entorno para la construcción
 ENV CI=true
 ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NODE_ENV=production
 
-# Construir el frontend y backend
-# Usamos el script de build directamente. Si falla, el --verbose de npm debería ayudar.
-RUN npm run build --verbose
+# PASO 1: Construir el frontend (Vite)
+# Usamos tee para asegurar que la salida se vea en el terminal aunque falle
+RUN npx vite build --root client --config vite.config.ts 2>&1 | tee /tmp/vite.log || (echo "VITE BUILD FAILED. LOGS:" && cat /tmp/vite.log && exit 1)
+
+# PASO 2: Construir el backend (esbuild)
+RUN npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist 2>&1 | tee /tmp/esbuild.log || (echo "ESBUILD BUILD FAILED. LOGS:" && cat /tmp/esbuild.log && exit 1)
 
 # --- Etapa de ejecución ---
-FROM node:20-slim
+# Usamos la imagen normal para mayor compatibilidad
+FROM node:20
 
 WORKDIR /app
 
