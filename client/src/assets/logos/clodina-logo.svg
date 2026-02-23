@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <!-- Cross symbol (same as farmacia logo) -->
+  <path fill="#169A49" d="M150,92 l-15,-15 l15,-15 l15,15 z"/>
+  <path fill="#169A49" d="M135,77 h30 v10 h-30 z"/>
+  
+  <!-- Stem (same as farmacia logo) -->
+  <path fill="#169A49" d="M140,102 c0,0 -10,110 -10,140 c0,15 10,30 20,30 c10,0 20,-15 20,-30 c0,-30 -10,-140 -10,-140 z"/>
+  
+  <!-- Horizontal line -->
+  <line x1="100" y1="280" x2="200" y2="280" stroke="#888" stroke-width="2"/>
+  
+  <!-- Text: CENTRO MÉDICO -->
+  <text x="150" y="320" font-family="Merriweather, serif" font-size="28" font-weight="bold" fill="#169A49" text-anchor="middle">CENTRO MÉDICO</text>
+  
+  <!-- Text: CLODINA -->
+  <text x="150" y="350" font-family="Merriweather, serif" font-size="28" font-weight="bold" fill="#169A49" text-anchor="middle">CLODINA</text>
+</svg>

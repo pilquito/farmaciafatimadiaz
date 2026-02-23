@@ -1,0 +1,157 @@
+/* Estilos para modo de alto contraste */
+.high-contrast {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 3.9%;
+  --primary: 142.1 76.2% 36.3%;
+  --primary-foreground: 355.7 100% 97.3%;
+  --secondary: 240 5.9% 10%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 142.1 76.2% 36.3%;
+  --radius: 0.75rem;
+}
+
+.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 0%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 0%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 142.1 100% 50%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 20%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 80%;
+  --accent: 142.1 100% 50%;
+  --accent-foreground: 0 0% 0%;
+  --destructive: 0 100% 60%;
+  --destructive-foreground: 0 0% 0%;
+  --border: 0 0% 50%;
+  --input: 0 0% 50%;
+  --ring: 142.1 100% 50%;
+}
+
+.high-contrast * {
+  border-color: var(--border) !important;
+}
+
+.high-contrast a {
+  color: var(--primary) !important;
+  text-decoration: underline !important;
+}
+
+.high-contrast button,
+.high-contrast .button {
+  border: 2px solid var(--foreground) !important;
+}
+
+.high-contrast img,
+.high-contrast svg {
+  filter: grayscale(0%) contrast(1.5) !important;
+}
+
+/* Estilos para texto grande */
+.large-text {
+  font-size: 125% !important;
+  line-height: 1.5 !important;
+}
+
+.large-text h1 {
+  font-size: 2.5rem !important;
+}
+
+.large-text h2 {
+  font-size: 2rem !important;
+}
+
+.large-text h3 {
+  font-size: 1.75rem !important;
+}
+
+.large-text p, 
+.large-text li, 
+.large-text label, 
+.large-text input, 
+.large-text button {
+  font-size: 1.2rem !important;
+}
+
+/* Estilos para reducción de movimiento */
+.reduced-motion * {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+/* Estilos para navegación por teclado */
+.keyboard-navigation *:focus {
+  outline: 3px solid var(--primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* Estilos para link de salto */
+#skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 8px;
+  z-index: 100;
+  transition: top 0.2s;
+}
+
+#skip-link:focus {
+  top: 0;
+}
+
+/* Mejoras generales de accesibilidad */
+button, 
+.button, 
+a {
+  transition: outline-offset 0.1s linear;
+}
+
+button:focus, 
+.button:focus, 
+a:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Clases de utilidad para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.focus:not-sr-only {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}

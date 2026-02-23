@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200">
+  <!-- Cruz y tallo (elemento gráfico del logo original) -->
+  <path fill="#169A49" d="M70,30 l-15,-15 l15,-15 l15,15 z" />
+  <path fill="#169A49" d="M55,30 h30 v10 h-30 z" />
+  <path fill="#169A49" d="M60,40 c0,0 -10,110 -10,140 c0,15 10,30 20,30 c10,0 20,-15 20,-30 c0,-30 -10,-140 -10,-140 z" />
+  
+  <!-- Línea separadora vertical -->
+  <line x1="130" y1="20" x2="130" y2="180" stroke="#888" stroke-width="2" />
+  
+  <!-- Texto: CENTRO MÉDICO -->
+  <text x="240" y="80" font-family="Merriweather, serif" font-size="42" font-weight="bold" fill="#169A49" text-anchor="middle">CENTRO MÉDICO</text>
+  
+  <!-- Texto: CLODINA -->
+  <text x="240" y="140" font-family="Merriweather, serif" font-size="54" font-weight="bold" fill="#169A49" text-anchor="middle">CLODINA</text>
+</svg>

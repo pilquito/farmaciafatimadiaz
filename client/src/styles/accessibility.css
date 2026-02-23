@@ -1,0 +1,116 @@
+/* Estilos para modo de alto contraste */
+html.high-contrast {
+  /* Colores de texto y fondo */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  
+  /* Sobreescribir los colores del tema */
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+  --primary: 142 76% 36%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 60 4% 98%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 60 4% 92%;
+  --muted-foreground: 0 0% 0%;
+  --accent: 60 4% 92%;
+  --accent-foreground: 0 0% 0%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 0%;
+  --input: 0 0% 0%;
+  --ring: 142 76% 36%;
+  --radius: 0.5rem;
+}
+
+html.high-contrast * {
+  /* Asegurar que todos los textos tienen suficiente contraste */
+  text-shadow: none !important;
+  background-color: initial !important;
+}
+
+html.high-contrast body {
+  background-color: white !important;
+  color: black !important;
+}
+
+html.high-contrast a {
+  color: #006400 !important;
+  text-decoration: underline !important;
+  text-decoration-thickness: 0.125em !important;
+}
+
+html.high-contrast img {
+  /* Asegurar que las imágenes tienen un borde visible */
+  border: 1px solid black !important;
+}
+
+html.high-contrast button,
+html.high-contrast .button {
+  border: 2px solid black !important;
+  background-color: white !important;
+  color: black !important;
+  font-weight: bold !important;
+}
+
+html.high-contrast button:hover,
+html.high-contrast .button:hover {
+  background-color: black !important;
+  color: white !important;
+}
+
+html.high-contrast input,
+html.high-contrast textarea,
+html.high-contrast select {
+  border: 2px solid black !important;
+  background-color: white !important;
+  color: black !important;
+}
+
+/* Mejorar visibilidad del foco para todos los elementos */
+*:focus {
+  outline: 3px solid #006400 !important;
+  outline-offset: 2px !important;
+}
+
+/* Animaciones reducidas para usuarios que prefieren reducir el movimiento */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Estilos para mejorar la experiencia de lectura de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Estilos para saltos de contenido - permiten a usuarios de teclado saltar a la navegación principal */
+.skip-to-content {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: #006400;
+  color: white;
+  padding: 10px;
+  z-index: 100;
+  text-decoration: none;
+  transition: top 0.3s ease;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
