@@ -16,11 +16,8 @@ COPY . .
 ENV CI=true
 ENV NODE_ENV=production
 
-# PASO 1: Construir el frontend (Vite)
-RUN npx vite build --root client --config vite.config.ts 2>&1 | tee /tmp/vite.log || (echo "VITE BUILD FAILED. LOGS:" && cat /tmp/vite.log && exit 1)
-
-# PASO 2: Construir el backend (esbuild)
-RUN npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist 2>&1 | tee /tmp/esbuild.log || (echo "ESBUILD BUILD FAILED. LOGS:" && cat /tmp/esbuild.log && exit 1)
+# Construir la aplicación
+RUN npm run build
 
 # --- Etapa de ejecución ---
 FROM node:20-slim
