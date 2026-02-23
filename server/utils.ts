@@ -21,6 +21,9 @@ export function serveStatic(app: Express) {
     path.resolve(process.cwd(), "public"),
     path.resolve(import.meta.dirname, "public"),
     path.resolve(import.meta.dirname, "..", "public"),
+    // Rutas absolutas directas como último recurso
+    "/app/dist/public",
+    "/dist/public"
   ];
 
   let distPath = "";
@@ -32,13 +35,23 @@ export function serveStatic(app: Express) {
   }
 
   if (!distPath) {
-    console.error("ERROR: No se encontró el directorio de build del frontend (index.html no encontrado).");
-    console.log("Rutas buscadas:", possiblePaths);
+    console.error("--- ERROR CRÍTICO: NO SE ENCONTRÓ EL FRONTEND ---");
+    console.error("No se encontró el directorio de build (buscando index.html).");
+    console.log("Rutas comprobadas:");
+    possiblePaths.forEach(p => console.log(` - ${p} -> ${fs.existsSync(p) ? 'Existe' : 'No existe'}`));
     
-    // Si no lo encontramos, al menos servimos algo para que el contenedor no explote, 
-    // pero lanzamos error para que aparezca en los logs.
+    // Listar contenido de directorios clave para diagnóstico
+    try {
+        console.log("Contenido de /app/dist:");
+        if (fs.existsSync("/app/dist")) console.log(fs.readdirSync("/app/dist"));
+        else console.log("/app/dist no existe");
+        
+        console.log("Contenido del directorio actual (cwd):", process.cwd());
+        console.log(fs.readdirSync(process.cwd()));
+    } catch (e) {}
+
     throw new Error(
-      `No se pudo encontrar el directorio de build del cliente. Por favor, verifica que 'npm run build' se haya ejecutado correctamente.`
+      `No se pudo encontrar el directorio de build del cliente. Por favor, verifica los logs de arriba para ver las rutas comprobadas.`
     );
   }
 

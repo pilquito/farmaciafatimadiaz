@@ -1,57 +1,43 @@
-# --- Etapa de construcción ---
-FROM node:20 AS builder
+# Usamos una sola etapa para evitar problemas de copiado entre etapas en entornos limitados
+FROM node:20
 
 WORKDIR /app
 
-# Copiar archivos de dependencias
+# Instalar dependencias primero para aprovechar el caché de capas
 COPY package*.json ./
-
-# Instalar TODAS las dependencias (incluyendo devDependencies para el build)
 RUN npm install
 
-# Copiar el resto del código fuente
+# Copiar el resto del código
 COPY . .
 
-# Variables de entorno para la fase de construcción
+# Variables de entorno para el build
 ENV NODE_ENV=production
 ENV VITE_BUILD=true
 ENV CI=true
 
-# Ejecutar el build unificado definido en package.json
-# Esto corre: vite build && esbuild server/index.ts ...
+# Ejecutar el build unificado
 RUN npm run build
 
-# VERIFICACIÓN CRÍTICA:
-# Listamos el contenido de dist para confirmar que el build generó lo esperado.
-# Si dist/public no existe, este paso fallará el build de Docker inmediatamente.
-RUN echo "Verificando estructura del directorio dist..." && \
+# VERIFICACIÓN POST-BUILD:
+# Esto detendrá el proceso de creación de la imagen si los archivos no están donde deben.
+RUN echo "--- CONTENIDO DEL DIRECTORIO DIST TRAS EL BUILD ---" && \
     ls -lR dist && \
     if [ ! -d "dist/public" ]; then echo "ERROR: El directorio dist/public no existe tras el build." && exit 1; fi && \
     if [ ! -f "dist/index.js" ]; then echo "ERROR: El archivo dist/index.js no existe tras el build." && exit 1; fi
 
-# --- Etapa de ejecución (Runtime) ---
-FROM node:20-slim
+# Limpiar dependencias de desarrollo para ahorrar espacio
+# (Hacemos esto después del build para no borrar herramientas necesarias para compilar)
+RUN npm prune --omit=dev
 
-WORKDIR /app
-
-# Copiar archivos de dependencias para instalar el mínimo necesario
-COPY package*.json ./
-
-# Instalar solo dependencias de producción para mantener la imagen ligera
-RUN npm install --omit=dev
-
-# Copiar TODO el contenido de dist generado en la etapa anterior
-COPY --from=builder /app/dist ./dist
-
-# Crear carpetas necesarias para la aplicación
+# Crear carpetas necesarias
 RUN mkdir -p uploads storage
 
-# Configuración de entorno para ejecución
-ENV NODE_ENV=production
+# Configuración final
 ENV PORT=5000
-
-# Exponer el puerto de la aplicación
 EXPOSE 5000
 
-# Comando para iniciar la aplicación usando el bundle generado
-CMD ["npm", "start"]
+# Comando de arranque con depuración de rutas
+CMD echo "--- REVISIÓN DE RUTAS AL ARRANCAR ---" && \
+    pwd && \
+    ls -lR dist && \
+    npm start
