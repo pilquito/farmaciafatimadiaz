@@ -1,7 +1,7 @@
+import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { log, serveStatic } from "./utils";
 import { seed } from "./seed";
-import express from "express";
 
 const app = express();
 
@@ -88,7 +88,7 @@ app.use((req, res, next) => {
   
   const server = await registerRoutes(app);
 
-  app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
@@ -100,7 +100,9 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
-    const { setupVite } = await import("./vite");
+    // Usamos un string dinámico para evitar que esbuild intente bundlear Vite en producción
+    const viteFile = "./vite" + ".js";
+    const { setupVite } = await import(viteFile);
     await setupVite(app, server);
   } else {
     serveStatic(app);

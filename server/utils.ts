@@ -15,26 +15,37 @@ export function log(message: string, source = "express") {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(process.cwd(), "dist/public");
+  // Intentamos varias rutas comunes en entornos Docker/Build
+  const possiblePaths = [
+    path.resolve(process.cwd(), "dist", "public"),
+    path.resolve(process.cwd(), "public"),
+    path.resolve(import.meta.dirname, "public"),
+    path.resolve(import.meta.dirname, "..", "public"),
+  ];
 
-  if (!fs.existsSync(distPath)) {
-    console.warn(`Directorio de build no encontrado en: ${distPath}`);
-    const alternativePath = path.resolve(import.meta.dirname, "public");
-    if (!fs.existsSync(alternativePath)) {
-      throw new Error(
-        `No se pudo encontrar el directorio de build. Busqué en: \n1. ${distPath}\n2. ${alternativePath}\nPor favor, asegúrate de compilar el cliente primero.`,
-      );
+  let distPath = "";
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p) && fs.existsSync(path.join(p, "index.html"))) {
+      distPath = p;
+      break;
     }
-    app.use(express.static(alternativePath));
-    app.use("*", (_req, res) => {
-      res.sendFile(path.resolve(alternativePath, "index.html"));
-    });
-    return;
   }
 
+  if (!distPath) {
+    console.error("ERROR: No se encontró el directorio de build del frontend (index.html no encontrado).");
+    console.log("Rutas buscadas:", possiblePaths);
+    
+    // Si no lo encontramos, al menos servimos algo para que el contenedor no explote, 
+    // pero lanzamos error para que aparezca en los logs.
+    throw new Error(
+      `No se pudo encontrar el directorio de build del cliente. Por favor, verifica que 'npm run build' se haya ejecutado correctamente.`
+    );
+  }
+
+  log(`Sirviendo archivos estáticos desde: ${distPath}`, "info");
   app.use(express.static(distPath));
 
   app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+    res.sendFile(path.join(distPath, "index.html"));
   });
 }

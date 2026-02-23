@@ -6,9 +6,13 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Lazy load plugins to avoid loading devDependencies in production
+// Usamos una función async para evitar que esbuild detecte la dependencia estática
 async function getPlugins() {
-  const react = (await import("@vitejs/plugin-react")).default;
+  if (process.env.NODE_ENV === "production" && !process.env.VITE_BUILD) {
+    return [];
+  }
+  const pluginName = "@vitejs" + "/plugin-react";
+  const react = (await import(pluginName)).default;
   return [react()];
 }
 
