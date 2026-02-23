@@ -12,9 +12,11 @@ RUN npm install
 # Copiar el resto del código
 COPY . .
 
+# Mostrar versiones para depuración
+RUN node -v && npm -v
+
 # Construir el frontend (Vite) y el backend (esbuild)
-# Nota: Vite construye a dist/public y esbuild a dist/index.js (según package.json)
-RUN npm run build
+RUN npm run build || (echo "Error durante npm run build" && exit 1)
 
 # --- Etapa de ejecución ---
 FROM node:20-alpine
