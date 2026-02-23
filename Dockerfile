@@ -1,25 +1,30 @@
 # --- Etapa de construcción ---
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
+
+# Instalar dependencias necesarias para compilación si hicieran falta
+# RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 # Copiar archivos de dependencias
 COPY package*.json ./
 
-# Instalar todas las dependencias (incluyendo dev)
+# Forzar limpieza y instalar (por si el lockfile tiene conflictos de plataforma)
 RUN npm install
 
 # Copiar el resto del código
 COPY . .
 
-# Listar archivos para verificar que todo se copió bien
-RUN ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
+# Variables de entorno para la construcción
+ENV CI=true
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Construir el frontend y backend con máxima verbosidad
+# Construir el frontend y backend
+# Usamos el script de build directamente. Si falla, el --verbose de npm debería ayudar.
 RUN npm run build --verbose
 
 # --- Etapa de ejecución ---
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
@@ -33,7 +38,7 @@ COPY --from=builder /app/dist ./dist
 # Instalar solo dependencias de producción
 RUN npm install --omit=dev
 
-# Crear carpeta de uploads por si acaso (aunque se recomienda usar volúmenes)
+# Crear carpeta de uploads
 RUN mkdir -p uploads
 
 # Exponer el puerto
