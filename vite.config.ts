@@ -33,7 +33,7 @@ export default {
   },
   root: path.resolve(__dirname, "client"),
   build: {
-    outDir: path.resolve(__dirname, "dist/public"),
+    outDir: "../dist/public", // Relative to root ('client') -> /app/dist/public
     emptyOutDir: true,
   },
 };

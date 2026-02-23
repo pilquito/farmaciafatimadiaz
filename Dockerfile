@@ -1,43 +1,47 @@
-# Usamos una sola etapa para evitar problemas de copiado entre etapas en entornos limitados
+# Usamos una sola etapa para máxima fiabilidad
 FROM node:20
 
 WORKDIR /app
 
-# Instalar dependencias primero para aprovechar el caché de capas
+# 1. Instalar dependencias
 COPY package*.json ./
 RUN npm install
 
-# Copiar el resto del código
+# 2. Copiar código fuente
 COPY . .
 
-# Variables de entorno para el build
+# 3. Variables para el build
 ENV NODE_ENV=production
 ENV VITE_BUILD=true
 ENV CI=true
 
-# Ejecutar el build unificado
-RUN npm run build
+# 4. Build del Frontend (Vite)
+# Forzamos la salida a /app/dist/public explícitamente
+RUN npx vite build --root client --config vite.config.ts --outDir ../dist/public
 
-# VERIFICACIÓN POST-BUILD:
-# Esto detendrá el proceso de creación de la imagen si los archivos no están donde deben.
-RUN echo "--- CONTENIDO DEL DIRECTORIO DIST TRAS EL BUILD ---" && \
-    ls -lR dist && \
-    if [ ! -d "dist/public" ]; then echo "ERROR: El directorio dist/public no existe tras el build." && exit 1; fi && \
-    if [ ! -f "dist/index.js" ]; then echo "ERROR: El archivo dist/index.js no existe tras el build." && exit 1; fi
+# 5. Build del Backend (esbuild)
+RUN npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/index.js
 
-# Limpiar dependencias de desarrollo para ahorrar espacio
-# (Hacemos esto después del build para no borrar herramientas necesarias para compilar)
-RUN npm prune --omit=dev
+# 6. VERIFICACIÓN CRÍTICA EN TIEMPO DE CONSTRUCCIÓN
+# Si este paso falla, la imagen NO se crea.
+RUN echo "--- VERIFICACIÓN FINAL DEL BUILD ---" && \
+    ls -la /app/dist && \
+    ls -la /app/dist/public && \
+    if [ ! -f "/app/dist/public/index.html" ]; then echo "ERROR: index.html no encontrado en /app/dist/public"; exit 1; fi && \
+    if [ ! -f "/app/dist/index.js" ]; then echo "ERROR: index.js no encontrado en /app/dist"; exit 1; fi
 
-# Crear carpetas necesarias
+# 7. Limpieza selectiva (opcional, la quitamos para evitar problemas)
+# RUN npm prune --omit=dev
+
+# 8. Preparar carpetas de datos
 RUN mkdir -p uploads storage
 
-# Configuración final
+# Configuración de ejecución
 ENV PORT=5000
 EXPOSE 5000
 
-# Comando de arranque con depuración de rutas
-CMD echo "--- REVISIÓN DE RUTAS AL ARRANCAR ---" && \
-    pwd && \
-    ls -lR dist && \
-    npm start
+# Comando de arranque con diagnóstico en vivo
+CMD echo "--- DIAGNÓSTICO DE ARRANQUE ---" && \
+    echo "Directorio actual: $(pwd)" && \
+    echo "Contenido de dist:" && ls -R dist && \
+    node dist/index.js
